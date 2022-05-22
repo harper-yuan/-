@@ -16,15 +16,17 @@ void *producer(void *param)
     for(int i = 0;i<count;i++)
     {
         sem_wait(&sem.empty);
+        pthread_mutex_lock(&mutex1);
 
-
-        sleep(1);//wait for one second
+        
         item = rand()%MAX_RAND;
         if(insert_item(q,item)) printf("producer error condition\n");
         else printf("producer produced %d\n",item);
 
+        
+        pthread_mutex_unlock(&mutex1);
         sem_post(&sem.full);
-
+        sleep(1);//wait for one second
     }
 
     
@@ -38,13 +40,16 @@ void *consumer(void *param)
     for(int i = 0;i<count;i++)
     {
         sem_wait(&sem.full);
-
+        pthread_mutex_lock(&mutex1);
         sleep(1);//wait for one second
         buffer_item item = q->queue[q->front];
         if(remove_item(q)) printf("consumer error condition\n");
         else printf("consumer consumed %d\n",item);
-
+        
+        
+        pthread_mutex_unlock(&mutex1);
         sem_post(&sem.empty);
+        sleep(1);//wait for one second
     }
     
 }
